@@ -6,7 +6,10 @@ import type { IUserService } from '../service/user.interface';
 import type { Request } from 'express';
 import { JwtGuard } from 'src/auth';
 import { USER_SERVICE_TOKEN } from '../constant/user.token';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('user')
 @Controller('user')
 export class UserController {
     constructor(

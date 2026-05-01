@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -18,6 +19,17 @@ async function bootstrap() {
       transform: true, // Automatically transform payloads to be objects typed according to their DTO classes - enable class-transform
     })
   )
+
+  const config = new DocumentBuilder()
+    .setTitle('Task Tracking API')
+    .setDescription('API for task tracking application')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('swagger', app, document); 
 
   await app.listen(process.env.PORT ?? 3000);
 }
