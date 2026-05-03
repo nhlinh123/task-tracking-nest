@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { UserDto } from '../dto/user.dto';
+import { UserEntity } from '../entity/user.entity';
 
 
 @Injectable()
@@ -9,7 +10,7 @@ export class UserRepository {
         private prismaService: PrismaService,
     ) {}
 
-    async getUserById(userId:string): Promise<UserDto | null> {
+    async getUserById(userId:string): Promise<UserEntity | null> {
         try {
             const user = await this.prismaService.user.findUnique({
                 where: { id: userId }

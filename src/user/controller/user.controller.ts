@@ -6,7 +6,7 @@ import type { IUserService } from '../service/user.interface';
 import type { Request } from 'express';
 import { JwtGuard } from 'src/auth';
 import { USER_SERVICE_TOKEN } from '../constant/user.token';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @ApiTags('user')
@@ -18,6 +18,8 @@ export class UserController {
 
     @Get(':id')
     @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Get user by ID' })
+    @ApiResponse({ status: 200, description: 'User found successfully' })
     async getUserById(@Param('id') userId: string): Promise<BaseResponse<UserDto | null>> {
         const user: UserDto | null = await this.userService.getUserById(userId);
         return new BaseResponse<UserDto | null>(
@@ -29,6 +31,8 @@ export class UserController {
 
     @Post('update/:id')
     @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Update user by ID' })
+    @ApiResponse({ status: 200, description: 'User updated successfully' })
     async patchUserById(@Param('id') userId: string, @Body() updateData: Partial<UserDto>, @Req() req: Request): Promise<BaseResponse<boolean>> {
         if (userId !== req.user?.['userId']) {
             return new BaseResponse<boolean>(
@@ -41,6 +45,27 @@ export class UserController {
         return new BaseResponse<boolean>(
             result,
             result ? '' : UserMessage.USER_NOT_FOUND,
+            HttpStatus.OK
+        );
+    }
+
+    @Post('me')
+    @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Get current user info' })
+    @ApiResponse({ status: 200, description: 'Current user info retrieved successfully' })
+    async getCurrentUser(@Req() req: Request): Promise<BaseResponse<UserDto | null>> {
+        const userId = req.user?.['userId'];
+        if (!userId) {
+            return new BaseResponse<UserDto | null>(
+                null,
+                UserMessage.USER_NOT_FOUND,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+        const user: UserDto | null = await this.userService.getUserById(userId);
+        return new BaseResponse<UserDto | null>(
+            user,
+            user === null ? UserMessage.USER_NOT_FOUND : '',
             HttpStatus.OK
         );
     }
